@@ -1,0 +1,138 @@
+﻿@model Social_Media_Exchanger.ViewModels.MySocialPagesViewModel
+@{
+    ViewBag.Title = "My Sites";
+}
+
+<h2>My sites</h2>
+<center><div id="txtHint" style="display:none"></div></center>
+@if (Model.numberOfPages > 0)
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <table class="table table-bordered table-hover table-responsive" style="text-align:center">
+                    <thead>
+                        <tr>
+                            <th class="col-md-2 th-center">Type</th>
+                            <th class="col-md-4 th-center">Title</th>
+                            <th class="col-md-1 th-center">Clicks</th>
+                            <th class="col-md-1 th-center">Cpc</th>
+                            <th class="col-md-2 th-center">Edit</th>
+                            <th class="col-md-2 th-center">Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.FacebookPages)
+                {
+                            <tr>
+                                <td>
+                                    Facebook like
+                                </td>
+                                <td>
+                                    <a href="@item.Url" style="text-decoration:none">@item.Name</a>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.NumberOfClicks)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.Cpc)
+                                </td>
+                                <td>
+                                    @Html.ActionLink("Edit", "Edit", new { type = "facebook", id = item.Id })
+                                </td>
+                                <td>
+                                    <a class="js-delete" href="#" data-record-id="@item.Id" data-type="facebook">
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                }
+
+                        @foreach (var item in Model.TwitterPages)
+                {
+                            <tr>
+                                <td>
+                                    Twitter Follow
+                                </td>
+                                <td>
+                                    <a href="@item.Url" style="text-decoration:none">@item.Name</a>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.NumberOfClicks)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.Cpc)
+                                </td>
+                                <td>
+                                    @Html.ActionLink("Edit", "Edit", new { type = "twitter", id = item.Id })
+                                </td>
+                                <td>
+                                    <a class="js-delete" href="#" data-record-id="@item.Id" data-type="twitter">
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                }
+
+                        @foreach (var item in Model.YoutubePages)
+                {
+                            <tr>
+                                <td>
+                                    Youtube Subscribe
+                                </td>
+                                <td>
+                                    <a href="@item.Url" style="text-decoration:none">@item.Name</a>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.NumberOfClicks)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.Cpc)
+                                </td>
+                                <td>
+                                    @Html.ActionLink("Edit", "Edit", new { type = "youtube", id = item.Id })
+                                </td>
+                                <td>
+                                    <a class="js-delete" href="#" data-record-id="@item.Id" data-type="youtube">
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container">
+        <div class="jumbotron">
+            <h1>You doesn't have any page.</h1>
+            <p>Add a page and begin to receive the power of the social media</p>
+        </div>
+    </div>
+}
+    @section scripts
+{
+    <script>
+        $('.js-delete').on('click', function (e) {
+            var $modalDiv = $(e.delegateTarget);
+            var idData = $(this).data('recordId');
+            var type = $(this).data('type');
+
+            bootbox.confirm("Are you sure you want to delete this page?",function (result) {
+                if (result)
+                {
+                    $.post('/' + type + '/delete', { id: idData })
+                        .done(function (html) {
+                            $modalDiv.closest('tr').remove();
+                            $("#txtHint").replaceWith(html);
+                        });
+                }
+            });
+
+        });        
+    </script>
+}

@@ -1,0 +1,5 @@
+﻿<div id="txtHint">@ViewBag.text</div>
+<script>
+    $("#currentPoints").html(@ViewBag.points + " points");
+    $("button[data-id='@ViewBag.pageid']").closest("tr").remove();
+</script>

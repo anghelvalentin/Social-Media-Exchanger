@@ -1,0 +1,125 @@
+﻿@model IEnumerable<Social_Media_Exchanger.Models.YoutubePage> 
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@{
+    ViewBag.Title = "Youtube Subscribers";
+}
+
+<h2>Youtube Subscribers</h2>
+
+<center><div id="txtHint" style="visibility: hidden;"></div></center>
+@if (Model.Count() == 0)
+{
+    <h3>There are no pages</h3>
+}
+else
+{
+    <table class="table" id="ytPages">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                Subscribe
+            </th>
+            <th>
+               Points
+            </th>
+            <th>Skip</th>
+        </tr>
+
+        @for (int i = 0; i < Model.Count() && i < 12; i++)
+        {
+            var item = Model.ElementAt(i);
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    <button class="btn btn-default js-like" data-id="@item.Id">Subscribe</button>
+                </td>
+                <td>
+                    @(item.Cpc-1)
+                </td>
+                <td>
+                    <button class="btn btn-link js-skip" style="padding-left:0px; padding-right:0px" data-id="@item.Id">Skip</button>
+                </td>
+            </tr>
+        }
+    </table>
+}
+<div class="row">
+    <div class="col-md-2 col-md-offset-5">
+        <button type="button" class="btn btn-primary" onclick="location.reload()">Reload</button>
+    </div>
+</div>
+
+@section scripts
+{
+<script>
+    var wind;
+    var $btn;
+
+    $(document).ready(function () {
+
+        $("#ytPages").on("click", ".js-like", function () {
+            $btn = $(this);
+            $btn.button("loading");
+            wind = window.open("/youtube/getdata/" + $btn.attr("data-id"), "", "width=700,height=600");
+            openWindow();
+        });
+
+        $("#ytPages").on("click", ".js-skip", function () {
+            var $skipBtn = $(this);
+            $.post("/youtube/skip",
+                { id: $skipBtn.attr("data-id") },
+                function (data, status) {
+                    $skipBtn.closest('tr').remove();
+                    //alert("Data: " + data + "\nStatus: " + status);
+                });
+        });
+
+
+        function openWindow() {
+            var i = 1;
+            var timer = setInterval(function () {
+                i = i + 1;
+                if (i > 25) {
+                    wind.close();
+                }
+                if (wind.closed) {
+                    clearInterval(timer);
+                    if (i <= 25) {
+                        confirm();
+                    } else {
+                        $btn.button("reset");
+                        $("#txtHint").replaceWith("<div id=\"txtHint\">You keep the page open for too long</div>");
+                    
+                    }
+                }
+            }, 1000);
+        }
+
+        function confirm() {
+            $.ajax({
+                url: "/youtube/GetSubscribersAfter",
+                method: "POST",
+                data: { id: $btn.attr("data-id") },
+
+            })
+            .done(function (html) {
+                //alert(html);
+                $btn.button("reset");
+                $("#txtHint").replaceWith(html);
+
+            });
+        }
+
+    });
+</script>
+
+}
